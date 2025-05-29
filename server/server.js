@@ -8,6 +8,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const cors = require('cors'); // Import cors middleware
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
+app.use(cors({ origin: 'http://localhost:8081' })); // Allow requests from frontend
 app.use(express.json());
 app.use('/users', userRoutes);
 app.use('/categories', categoryRoutes);
