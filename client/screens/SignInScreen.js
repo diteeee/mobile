@@ -35,7 +35,7 @@ const SignInScreen = () => {
       Alert.alert('Success', 'You are now signed in!');
       router.push('/');
     } catch (error) {
-      console.error('Login error:', error.response?.data || error.message);
+      console.error('Sign in error:', error.response?.data || error.message);
       Alert.alert(
         'Login Failed',
         error.response?.data?.message || 'An error occurred. Please try again.'
