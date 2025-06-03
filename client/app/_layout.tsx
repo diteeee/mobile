@@ -146,7 +146,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#880e4f',
+    backgroundColor: '#cd9faf',
   },
   navbar: {
     flexDirection: 'row',

@@ -60,6 +60,31 @@ const UserController = {
       res.status(500).json({ error: error.message });
     }
   },
+
+  async resetPassword(req, res) {
+    const { email, newPassword, confirmNewPassword } = req.body;
+
+    if (!email || !newPassword || !confirmNewPassword) {
+      return res.status(400).json({ message: 'Please fill all fields' });
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
+
+    try {
+      const user = await User.findOne({ email });
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      user.password = hashed;
+      await user.save();
+
+      res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 };
 
 module.exports = UserController;
