@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,16 +36,12 @@ const SignInScreen = () => {
 
       const { token, user } = response.data;
 
-      console.log('Token:', token);
-      console.log('User:', user);
-
       // Save token in AsyncStorage
       await AsyncStorage.setItem('token', token);
 
       Alert.alert('Success', 'You are now signed in!');
       router.push('/');
     } catch (error) {
-      console.error('Sign in error:', error.response?.data || error.message);
       Alert.alert(
         'Login Failed',
         error.response?.data?.message || 'An error occurred. Please try again.'
@@ -46,41 +52,108 @@ const SignInScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign In</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <Text style={styles.title}>Welcome Back 💄</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="#b88fb8"
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor="#b88fb8"
         secureTextEntry
         autoCapitalize="none"
         value={password}
         onChangeText={setPassword}
       />
-      <Button
-        title={loading ? 'Signing In...' : 'Sign In'}
+
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleSignIn}
         disabled={loading}
-      />
-      <Button
-        title="Sign Up"
-        onPress={() => router.push('/signup')}
-      />
-    </View>
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Sign In</Text>
+        )}
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.push('/signup')} style={styles.signupBtn}>
+        <Text style={styles.signupText}>Don't have an account? <Text style={{fontWeight: 'bold'}}>Sign Up</Text></Text>
+      </TouchableOpacity>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', paddingHorizontal: 20, backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  input: { width: '100%', padding: 10, marginBottom: 15, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, backgroundColor: '#f9f9f9' },
+  container: {
+    flex: 1,
+    backgroundColor: '#fce4ec', // soft pink pastel background
+    justifyContent: 'center',
+    paddingHorizontal: 30,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#880e4f', // deep berry color
+    marginBottom: 30,
+    textAlign: 'center',
+    fontFamily: 'Playfair Display, serif'
+  },
+  input: {
+    backgroundColor: '#f8bbd0', // lighter pink
+    borderRadius: 25,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    fontSize: 16,
+    marginBottom: 20,
+    color: '#4a148c',
+    shadowColor: '#ad1457',
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 5,
+  },
+  button: {
+    backgroundColor: '#880e4f',
+    paddingVertical: 16,
+    borderRadius: 30,
+    alignItems: 'center',
+    marginTop: 10,
+    shadowColor: '#4a148c',
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 7,
+  },
+  buttonDisabled: {
+    backgroundColor: '#a97ca0',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  signupBtn: {
+    marginTop: 25,
+    alignItems: 'center',
+  },
+  signupText: {
+    color: '#880e4f',
+    fontSize: 15,
+  },
 });
 
 export default SignInScreen;

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Stack, useRouter } from 'expo-router';
 import {
   View,
@@ -7,35 +7,41 @@ import {
   TouchableOpacity,
   FlatList,
   Pressable,
+  Dimensions,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
-const MenuItem = ({ label, route, closeMenu }) => {
-  const router = useRouter();
-
-  const handleNavigation = () => {
-    closeMenu();
-    router.push(route);
-  };
-
-  return (
-    <Pressable onPress={handleNavigation} style={styles.menuItem}>
-      <Text style={styles.menuItemText}>{label}</Text>
-    </Pressable>
-  );
-};
+const MenuItem = ({ label, onPress }) => (
+  <Pressable onPress={onPress} style={styles.menuItem}>
+    <Text style={styles.menuItemText}>{label}</Text>
+  </Pressable>
+);
 
 export default function RootLayout() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 16 });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const iconRef = useRef(null);
+  const router = useRouter();
+  const navigation = useNavigation();
 
-  const menuOptions = [
-    { label: 'Home', route: '/' },
-    { label: 'Sign In', route: '/signin' },
-    { label: 'Sign Up', route: '/signup' },
-  ];
+  const checkToken = async () => {
+    const token = await AsyncStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  };
+
+  useEffect(() => {
+    // Initial token check
+    checkToken();
+
+    // Add a navigation event listener to re-check token
+    const unsubscribe = navigation.addListener('focus', checkToken);
+
+    return unsubscribe;
+  }, [navigation]);
 
   const handleIconLayout = () => {
     iconRef.current.measureInWindow((x, y, width, height) => {
@@ -43,15 +49,58 @@ export default function RootLayout() {
     });
   };
 
+  const handleSignOut = async () => {
+    await AsyncStorage.removeItem('token');
+    setMenuVisible(false);
+    setIsLoggedIn(false);
+    router.push('/signin');
+  };
+
+  const menuOptions = [
+  {
+    label: 'Home',
+    action: () => {
+      setMenuVisible(false); // Close dropdown
+      router.push('/');
+    },
+  },
+  ...(isLoggedIn
+    ? [
+        {
+          label: 'Sign Out',
+          action: async () => {
+            setMenuVisible(false); // Close dropdown
+            await handleSignOut();
+          },
+        },
+      ]
+    : [
+        {
+          label: 'Sign In',
+          action: () => {
+            setMenuVisible(false); // Close dropdown
+            router.push('/signin');
+          },
+        },
+        {
+          label: 'Sign Up',
+          action: () => {
+            setMenuVisible(false); // Close dropdown
+            router.push('/signup');
+          },
+        },
+      ]),
+    ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Navbar */}
       <View style={styles.navbar}>
         <Text style={styles.navbarTitle}>My App</Text>
         <TouchableOpacity
           ref={iconRef}
           onPress={() => {
             handleIconLayout();
+            checkToken(); // Re-check token when menu is opened
             setMenuVisible((v) => !v);
           }}
         >
@@ -59,32 +108,32 @@ export default function RootLayout() {
         </TouchableOpacity>
       </View>
 
-      {/* This overlay closes menu if you tap anywhere outside */}
+      {/* Overlay to close dropdown */}
       {menuVisible && (
         <Pressable
-          style={StyleSheet.absoluteFill}
-          onPress={() => setMenuVisible(false)}
+          style={styles.overlay}
+          onPress={() => setMenuVisible(false)} // Close dropdown on outside touch
         />
       )}
 
       {/* Dropdown Menu */}
       {menuVisible && (
-        <View style={[styles.dropdownMenu, { top: dropdownPosition.top, right: dropdownPosition.right }]}>
+        <View
+          style={[
+            styles.dropdownMenu,
+            { top: dropdownPosition.top, right: dropdownPosition.right },
+          ]}
+        >
           <FlatList
             data={menuOptions}
-            keyExtractor={(item) => item.route}
+            keyExtractor={(item) => item.label}
             renderItem={({ item }) => (
-              <MenuItem
-                label={item.label}
-                route={item.route}
-                closeMenu={() => setMenuVisible(false)}
-              />
+              <MenuItem label={item.label} onPress={item.action} />
             )}
           />
         </View>
       )}
 
-      {/* Main Stack */}
       <Stack
         screenOptions={{
           headerShown: false,
@@ -97,7 +146,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffcdf5', // navbar bg match
+    backgroundColor: '#880e4f',
   },
   navbar: {
     flexDirection: 'row',
@@ -105,12 +154,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#ffcdf5', // purple navbar
+    backgroundColor: '#cd9faf',
   },
   navbarTitle: {
     color: '#fff',
     fontSize: 20,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
   },
   dropdownMenu: {
     position: 'absolute',
@@ -122,7 +171,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
-    zIndex: 1000,
+    zIndex: 10,
     width: 160,
   },
   menuItem: {
@@ -132,5 +181,14 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 16,
     color: '#333',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+    backgroundColor: 'transparent',
+    zIndex: 5, // Ensure overlay is above other elements but below the menu
   },
 });

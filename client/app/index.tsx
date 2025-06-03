@@ -14,7 +14,7 @@ export default function HomeScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    navigation.setOptions({ title: 'Products' }); // Set a custom title for the navbar
+    navigation.setOptions({ title: 'Products' }); // Set navbar title
   }, [navigation]);
 
   const [data, setData] = useState(null);
@@ -38,15 +38,15 @@ export default function HomeScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6200ea" />
-        <Text style={styles.loadingText}>Loading products...</Text>
+        <ActivityIndicator size="large" color="#880e4f" />
+        <Text style={styles.loadingText}>Fetching your favorite makeup...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Products</Text>
+      <Text style={styles.header}>Our Makeup Collection</Text>
       <FlatList
         data={data}
         renderItem={renderProductCard}
@@ -61,26 +61,31 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f4f4f8',
+    backgroundColor: '#fce4ec', // soft pastel pink
+    paddingTop: 20,
   },
   header: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: '700',
     textAlign: 'center',
     marginVertical: 20,
-    color: '#333',
+    color: '#880e4f', // deep berry
+    fontFamily: 'Playfair Display, serif'
   },
   list: {
     paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fce4ec',
   },
   loadingText: {
-    fontSize: 16,
-    color: '#444',
-    marginTop: 10,
+    marginTop: 14,
+    fontSize: 18,
+    color: '#880e4f',
+    fontWeight: '600',
   },
 });
