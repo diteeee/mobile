@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const ProductCard = ({ product, onAddToCart, showAddToCart = true }) => {
+  const price = typeof product.price === 'number' ? product.price : 0;
 
-const ProductCard = ({ product }) => {
   return (
     <View style={styles.card}>
       <Image
@@ -11,10 +11,29 @@ const ProductCard = ({ product }) => {
         style={styles.image}
         resizeMode="contain"
       />
-      <Text style={styles.name}>{product.name}</Text>
-      <Text style={styles.description}>{product.description}</Text>
-      <Text style={styles.price}>${product.price.toFixed(2)}</Text>
-      <Text style={styles.stock}>Stock: {product.stock}</Text>
+      <Text style={styles.name}>{product.name || 'Unnamed Product'}</Text>
+      <Text style={styles.description}>
+        {product.description || 'No description available.'}
+      </Text>
+      <Text style={styles.price}>${price.toFixed(2)}</Text>
+      <Text style={styles.stock}>
+        Stock: {product.stock !== undefined ? product.stock : 'Unknown'}
+      </Text>
+
+      {showAddToCart && (
+        <TouchableOpacity
+          style={[
+            styles.addButton,
+            product.stock === 0 && { backgroundColor: '#ccc' },
+          ]}
+          onPress={onAddToCart}
+          disabled={product.stock === 0}
+        >
+          <Text style={styles.addButtonText}>
+            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -62,6 +81,18 @@ const styles = StyleSheet.create({
   stock: {
     fontSize: 14,
     color: '#888',
+    marginBottom: 10,
+  },
+  addButton: {
+    backgroundColor: '#880e4f',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

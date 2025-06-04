@@ -51,6 +51,7 @@ export default function RootLayout() {
 
   const handleSignOut = async () => {
     await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('userId');
     setMenuVisible(false);
     setIsLoggedIn(false);
     router.push('/signin');

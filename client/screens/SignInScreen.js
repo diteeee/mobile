@@ -29,15 +29,16 @@ const SignInScreen = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://192.168.1.14:5000/users/login', {
+      const response = await axios.post('http://192.168.1.4:5000/users/login', {
         email,
         password,
       });
 
       const { token, user } = response.data;
 
-      // Save token in AsyncStorage
+      // Save token and userId in AsyncStorage
       await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('userId', user.id);
 
       Alert.alert('Success', 'You are now signed in!');
       router.push('/');

@@ -3,10 +3,12 @@ const CartController = require('../controllers/CartController');
 
 const router = express.Router();
 
-// Get the cart for a specific user
 router.get('/:userId', CartController.getCart);
 
-// Add a product to the cart
 router.post('/add', CartController.addToCart);
+
+router.post('/remove', CartController.removeFromCart);
+
+router.put('/update-quantity', CartController.updateCartQuantity);
 
 module.exports = router;

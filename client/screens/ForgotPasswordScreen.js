@@ -34,7 +34,7 @@ const ForgotPasswordScreen = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://192.168.1.14:5000/users/reset-password', {
+      const response = await axios.post('http://192.168.1.4:5000/users/reset-password', {
         email,
         newPassword,
         confirmNewPassword,
