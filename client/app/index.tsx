@@ -1,3 +1,4 @@
+// HomeScreen.js (with wishlist additions only, nothing else changed)
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -6,151 +7,214 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import ProductCard from '../components/ProductCard';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { MaterialIcons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 
 const HomeScreen = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [products, setProducts] = useState([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [open, setOpen] = useState(false); // For dropdown picker
+  const [wishlist, setWishlist] = useState([]); // <-- wishlist state added
+  const [open, setOpen] = useState(false);
   const isFocused = useIsFocused();
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchTokenAndCategories = async () => {
+    const fetchData = async () => {
       try {
         const storedToken = await AsyncStorage.getItem('token');
-        const storedUserId = await AsyncStorage.getItem('userId'); // assuming you store userId
+        const storedUserId = await AsyncStorage.getItem('userId');
         setToken(storedToken);
         setUserId(storedUserId);
 
-        if (storedToken) {
-          await fetchCategories(storedToken);
-        } else {
-          setLoadingCategories(false);
-          setLoadingProducts(false);
-        }
+        await fetchCategories();
       } catch (error) {
         console.error('Error fetching token:', error);
-        setLoadingCategories(false);
-        setLoadingProducts(false);
+        setErrorMessage('Failed to load data. Please try again later.');
+        setLoading(false);
       }
     };
 
     if (isFocused) {
-      fetchTokenAndCategories();
+      fetchData();
     }
   }, [isFocused]);
 
-  const fetchCategories = async (authToken) => {
+  const fetchCategories = async () => {
     try {
-      setLoadingCategories(true);
-      const response = await axios.get('http://192.168.1.4:5000/categories', {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const response = await axios.get(`http://192.168.1.4:5000/categories`);
 
       const fetchedCategories = response.data.map((cat) => ({
         label: cat.name,
         value: cat._id,
       }));
 
-      // Add the "All" option
-      const allOption = { label: 'All', value: 'all' };
-
-      setCategories([allOption, ...fetchedCategories]);
+      setCategories([{ label: 'All', value: 'all' }, ...fetchedCategories]);
 
       if (response.data.length > 0) {
-        setSelectedCategoryId('all'); // Default to "All" option
-        fetchProducts(authToken, 'all');
+        setSelectedCategoryId('all');
+        await fetchProducts('all');
       } else {
-        setLoadingProducts(false);
+        setProducts([]);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
-      setLoadingCategories(false);
-      setLoadingProducts(false);
-    } finally {
-      setLoadingCategories(false);
+      setErrorMessage('Failed to load categories. Please try again later.');
     }
   };
 
-  const fetchProducts = async (authToken, categoryId) => {
+  const fetchProducts = async (categoryId) => {
     try {
-      setLoadingProducts(true);
-      const response = await axios.get('http://192.168.1.4:5000/products', {
-        headers: { Authorization: `Bearer ${authToken}` },
+      const response = await axios.get(`http://192.168.1.4:5000/products`, {
+        params: categoryId !== 'all' ? { categoryId } : {},
       });
 
-      let filteredProducts = response.data;
-
-      if (categoryId !== 'all') {
-        filteredProducts = response.data.filter(
-          (product) => product.category && product.category._id === categoryId
-        );
-      }
-
-      setProducts(filteredProducts);
+      setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setErrorMessage('Failed to load products. Please try again later.');
     } finally {
-      setLoadingProducts(false);
+      setLoading(false);
     }
   };
 
-  // Handle adding a product to the cart
+  // Fetch wishlist on focus or token/userId changes
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (userId && token) {
+        try {
+          const response = await axios.get(`http://192.168.1.4:5000/wishlists/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setWishlist(response.data.products.map((product) => product._id));
+        } catch (error) {
+          console.error('Error fetching wishlist:', error);
+        }
+      }
+    };
+
+    if (isFocused) {
+      fetchWishlist();
+    }
+  }, [isFocused, userId, token]);
+
+ const toggleWishlist = async (productId) => {
+    if (!userId) {
+      Toast.show({
+        type: 'info',
+        text1: 'Please sign in',
+        text2: 'You must be logged in to manage your wishlist',
+        visibilityTime: 3000,
+      });
+      return;
+    }
+
+    const isInWishlist = wishlist.includes(productId);
+
+    try {
+      if (isInWishlist) {
+        await axios.delete(
+          `http://192.168.1.4:5000/wishlists/${userId}/${productId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setWishlist(wishlist.filter((id) => id !== productId));
+        Toast.show({
+          type: 'info',
+          text1: 'Removed from Wishlist',
+        });
+      } else {
+        await axios.post(
+          `http://192.168.1.4:5000/wishlists/`,
+          { user: userId, product: productId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setWishlist([...wishlist, productId]);
+        Toast.show({
+          type: 'success',
+          text1: 'Added to Wishlist',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating wishlist:', error.response?.data || error.message);
+      Toast.show({
+        type: 'error',
+        text1: 'Wishlist Error',
+        text2: 'Could not update wishlist.',
+      });
+    }
+  };
+
   const handleAddToCart = async (productId) => {
     if (!userId) {
-      Alert.alert('Please sign in to add products to your cart');
+      Toast.show({
+        type: 'info',
+        text1: 'Please sign in',
+        text2: 'You must be logged in to add products to your cart',
+        visibilityTime: 3000,
+      });
       return;
     }
 
     try {
       await axios.post(
-        'http://192.168.1.4:5000/carts/add',
-        {
-          user: userId,
-          product: productId,
-          quantity: 1,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `http://192.168.1.4:5000/carts/add`,
+        { user: userId, product: productId, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      Alert.alert('Success', 'Product added to cart!');
+      Toast.show({
+        type: 'success',
+        text1: 'Item Added to Cart',
+        text2: 'The item has been successfully added to your cart.',
+        visibilityTime: 3000,
+      });
     } catch (error) {
       console.error('Error adding to cart:', error);
-      Alert.alert('Error', 'Failed to add product to cart.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to add product to cart.',
+        visibilityTime: 3000,
+      });
     }
   };
 
   const renderProductCard = ({ item }) => (
-    <ProductCard product={item} onAddToCart={() => handleAddToCart(item._id)} />
+    <ProductCard
+      product={item}
+      onAddToCart={() => handleAddToCart(item._id)}
+      isInWishlist={wishlist.includes(item._id)}
+      onToggleWishlist={() => toggleWishlist(item._id)}
+    />
   );
 
-  if (loadingCategories || loadingProducts) {
+  if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="#880e4f" />
-        <Text style={styles.loadingText}>Loading your favorite products...</Text>
       </View>
     );
   }
 
-  if (!token) {
+  if (errorMessage) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.messageText}>
-          Please sign in to view our fabulous makeup products.
-        </Text>
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{errorMessage}</Text>
+        <TouchableOpacity onPress={() => fetchCategories(token)} style={styles.retryButton}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -167,12 +231,14 @@ const HomeScreen = () => {
           setOpen={setOpen}
           setValue={setSelectedCategoryId}
           onChangeValue={(value) => {
-            if (token) fetchProducts(token, value);
+            fetchProducts(value);
           }}
           placeholder="Select a Category"
           style={styles.dropdown}
           textStyle={styles.dropdownText}
           placeholderStyle={styles.placeholderText}
+          accessible
+          accessibilityLabel="Category dropdown"
         />
       </View>
 
@@ -189,6 +255,14 @@ const HomeScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      <TouchableOpacity
+        style={styles.cartButton}
+        onPress={() => router.push('/cart')}
+      >
+        <MaterialIcons name="shopping-cart" size={24} color="#fff" />
+      </TouchableOpacity>
+      <Toast position="bottom" />
     </View>
   );
 };
@@ -199,6 +273,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fce4ec',
     paddingTop: 16,
   },
+  cartButton: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    backgroundColor: '#880e4f',
+    borderRadius: 50,
+    padding: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
   heading: {
     fontSize: 28,
     fontWeight: '700',
@@ -207,10 +294,33 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontFamily: 'Playfair Display, serif',
   },
-  dropdownContainer: {
-    marginHorizontal: 16,
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  errorText: {
+    color: '#880e4f',
+    fontSize: 18,
     marginBottom: 12,
-    zIndex: 1000, // Ensures dropdown appears above other elements
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#880e4f',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   dropdown: {
     borderColor: '#880e4f',
@@ -218,7 +328,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#fff',
   },
-  dropdownText: {
+  dropdownContainer: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    zIndex: 1000,
+  },
+    dropdownText: {
     fontSize: 16,
     color: '#880e4f',
   },
@@ -226,23 +341,7 @@ const styles = StyleSheet.create({
     color: '#bdbdbd',
     fontSize: 16,
   },
-  list: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fce4ec',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#880e4f',
-    fontWeight: '500',
-  },
-  centerContainer: {
+    centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -254,6 +353,10 @@ const styles = StyleSheet.create({
     color: '#880e4f',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  list: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
 });
 

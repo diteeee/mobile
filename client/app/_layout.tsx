@@ -68,6 +68,13 @@ export default function RootLayout() {
   ...(isLoggedIn
     ? [
         {
+          label: 'Wishlist',
+          action: () => {
+            setMenuVisible(false); // Close dropdown
+            router.push('/wishlist');
+          },
+        },
+        {
           label: 'Sign Out',
           action: async () => {
             setMenuVisible(false); // Close dropdown

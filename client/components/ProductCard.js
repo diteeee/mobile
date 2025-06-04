@@ -1,7 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const ProductCard = ({ product, onAddToCart, showAddToCart = true }) => {
+const ProductCard = ({
+  product,
+  onAddToCart,
+  showAddToCart = true,
+  isInWishlist,
+  onToggleWishlist,
+  hideWishlistButton = false, // New prop
+}) => {
   const price = typeof product.price === 'number' ? product.price : 0;
 
   return (
@@ -34,6 +42,23 @@ const ProductCard = ({ product, onAddToCart, showAddToCart = true }) => {
           </Text>
         </TouchableOpacity>
       )}
+
+      {/* Wishlist button */}
+      {!hideWishlistButton && (
+        <TouchableOpacity
+          style={styles.wishlistButton}
+          onPress={onToggleWishlist}
+          accessibilityLabel={
+            isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'
+          }
+        >
+          <MaterialIcons
+            name={isInWishlist ? 'favorite' : 'favorite-border'}
+            size={28}
+            color={isInWishlist ? '#e91e63' : '#888'}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -50,6 +75,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center',
+    position: 'relative', // needed for wishlist button
   },
   image: {
     width: '90%',
@@ -93,6 +119,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  wishlistButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
   },
 });
 

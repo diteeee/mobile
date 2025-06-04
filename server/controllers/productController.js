@@ -4,7 +4,11 @@ const Product = require('../models/Product');
 const ProductController = {
   async getAllProducts(req, res) {
     try {
-      const products = await Product.find().populate('category');
+      const filter = {};
+      if (req.query.categoryId && req.query.categoryId !== 'all') {
+        filter.category = req.query.categoryId;
+      }
+      const products = await Product.find(filter).populate('category');
       res.status(200).json(products);
     } catch (error) {
       res.status(500).json({ error: error.message });

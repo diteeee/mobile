@@ -69,8 +69,8 @@ const CartScreen = () => {
     // If change is zero, remove the item from cart
     if (change === 0) {
       try {
-        await axios.put(
-          'http://192.168.1.4:5000/carts/remove-product',
+        await axios.post(
+          'http://192.168.1.4:5000/carts/remove',
           { user: userId, product: productId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -105,7 +105,7 @@ const CartScreen = () => {
 
   const renderCartItem = ({ item }) => (
     <View style={styles.cartItem}>
-      <ProductCard product={item.product} showAddToCart={false} />
+      <ProductCard product={item.product} showAddToCart={false} hideWishlistButton={true}/>
       <View style={styles.quantityWrapper}>
         <TouchableOpacity
           style={styles.quantityButton}
@@ -124,7 +124,7 @@ const CartScreen = () => {
       <Button
         title="Remove"
         onPress={() => handleQuantityChange(item.product._id, 0)}
-        color="#d32f2f"
+        color="#000000"
       />
     </View>
   );
@@ -182,7 +182,6 @@ const styles = StyleSheet.create({
     color: '#880e4f',
     textAlign: 'center',
     marginBottom: 12,
-    fontFamily: 'Playfair Display, serif',
   },
   list: {
     paddingHorizontal: 16,

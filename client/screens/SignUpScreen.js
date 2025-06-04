@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
     color: '#880e4f', // deep berry color (same as sign in)
     marginBottom: 30,
     textAlign: 'center',
-    fontFamily: 'Playfair Display, serif'
   },
   input: {
     backgroundColor: '#f8bbd0', // lighter pink (same as sign in)
