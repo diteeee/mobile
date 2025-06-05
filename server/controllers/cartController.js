@@ -71,6 +71,22 @@ const CartController = {
       res.status(500).json({ error: error.message });
     }
   },
+
+  async clearCart(req, res) {
+    try {
+      const { user } = req.body;
+      const cart = await Cart.findOne({ user });
+
+      if (cart) {
+        cart.products = [];
+        await cart.save();
+        return res.status(200).json({ message: 'Cart cleared successfully' });
+      }
+      res.status(404).json({ message: 'Cart not found' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 };
 
 module.exports = CartController;

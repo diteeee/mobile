@@ -13,6 +13,9 @@ import axios from 'axios';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProductCard from '../components/ProductCard';
+import PlaceOrderCard from '../components/PlaceOrderCard';
+import Toast from 'react-native-toast-message'; // Import the toast message
+import { useRouter } from 'expo-router';
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -20,6 +23,7 @@ const CartScreen = () => {
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const isFocused = useIsFocused();
+  const router = useRouter(); // Get router instance
 
   useEffect(() => {
     const fetchTokenAndCart = async () => {
@@ -62,27 +66,13 @@ const CartScreen = () => {
   };
 
   const handleQuantityChange = async (productId, change) => {
-    // Find current quantity for productId in cartItems
-    const currentItem = cartItems.find(item => item.product._id === productId);
-    if (!currentItem) return; // item not found
+    const currentItemIndex = cartItems.findIndex(item => item.product._id === productId);
+    if (currentItemIndex === -1) return; // Item not found
 
-    // If change is zero, remove the item from cart
-    if (change === 0) {
-      try {
-        await axios.post(
-          'http://192.168.1.4:5000/carts/remove',
-          { user: userId, product: productId },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        await fetchCart(userId, token);
-      } catch (error) {
-        console.error('Error removing product:', error);
-        Alert.alert('Error', 'Failed to remove product.');
-      }
-      return;
-    }
-
+    const currentItem = cartItems[currentItemIndex];
     const newQuantity = currentItem.quantity + change;
+
+    // If the change is zero or results in quantity < 1, handle item removal
     if (newQuantity < 1) {
       Alert.alert('Quantity cannot be less than 1');
       return;
@@ -95,11 +85,63 @@ const CartScreen = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Refetch the full cart after update to get complete product info
-      await fetchCart(userId, token);
+      // Update the specific item's quantity locally
+      const updatedCartItems = [...cartItems];
+      updatedCartItems[currentItemIndex] = {
+        ...currentItem,
+        quantity: newQuantity,
+      };
+      setCartItems(updatedCartItems);
     } catch (error) {
       console.error('Error updating quantity:', error);
       Alert.alert('Error', 'Failed to update quantity.');
+    }
+  };
+
+  const handlePlaceOrder = async (totalPrice) => {
+    try {
+      const response = await axios.post(
+        'http://192.168.1.4:5000/orders',
+        { user: userId, products: cartItems, totalPrice },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log('Order placed:', totalPrice);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Order Placed',
+        text2: 'Your order was placed successfully!',
+      });
+
+      // Clear the cart locally
+      setCartItems([]);
+
+      // Optionally clear the cart on the backend
+      await axios.post(
+        'http://192.168.1.4:5000/carts/clear',
+        { user: userId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error('Error placing order:', error);
+      Alert.alert('Error', 'Failed to place the order.');
+    }
+  };
+
+  const handleRemoveFromCart = async (productId) => {
+    try {
+      await axios.post(
+        'http://192.168.1.4:5000/carts/remove',
+        { user: userId, product: productId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Remove the item locally
+      const updatedCartItems = cartItems.filter(item => item.product._id !== productId);
+      setCartItems(updatedCartItems);
+    } catch (error) {
+      console.error('Error removing item from cart:', error);
+      Alert.alert('Error', 'Failed to remove item from cart.');
     }
   };
 
@@ -123,11 +165,12 @@ const CartScreen = () => {
       </View>
       <Button
         title="Remove"
-        onPress={() => handleQuantityChange(item.product._id, 0)}
+        onPress={() => handleRemoveFromCart(item.product._id)}
         color="#000000"
       />
     </View>
   );
+
 
   if (loading) {
     return (
@@ -156,6 +199,12 @@ const CartScreen = () => {
           <Text style={styles.messageText}>
             Your cart is empty. Add products to see them here!
           </Text>
+          <TouchableOpacity
+            style={styles.seeProductsButton}
+            onPress={() => router.push('/')}
+          >
+            <Text style={styles.seeProductsButtonText}>See Products</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -166,6 +215,8 @@ const CartScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
+      {cartItems.length > 0 && <PlaceOrderCard cartItems={cartItems} onPlaceOrder={handlePlaceOrder} />}
+      <Toast />
     </View>
   );
 };
@@ -253,6 +304,27 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     minWidth: 30,
     textAlign: 'center',
+  },
+  seeProductsButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: '#f48fb1', // light pink
+    borderRadius: 30,
+    shadowColor: '#c2185b', // shadow color
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 4, // for Android shadow
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  seeProductsButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
 });
 

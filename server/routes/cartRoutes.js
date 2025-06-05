@@ -11,4 +11,6 @@ router.post('/remove', CartController.removeFromCart);
 
 router.put('/update-quantity', CartController.updateCartQuantity);
 
+router.post('/clear', CartController.clearCart);
+
 module.exports = router;

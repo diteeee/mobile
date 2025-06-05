@@ -58,13 +58,6 @@ export default function RootLayout() {
   };
 
   const menuOptions = [
-  {
-    label: 'Home',
-    action: () => {
-      setMenuVisible(false); // Close dropdown
-      router.push('/');
-    },
-  },
   ...(isLoggedIn
     ? [
         {
@@ -103,7 +96,9 @@ export default function RootLayout() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.navbar}>
-        <Text style={styles.navbarTitle}>My App</Text>
+        <TouchableOpacity onPress={() => router.push('/')}>
+          <Text style={styles.navbarTitle}>Celestia</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           ref={iconRef}
           onPress={() => {
@@ -116,7 +111,6 @@ export default function RootLayout() {
         </TouchableOpacity>
       </View>
 
-      {/* Overlay to close dropdown */}
       {menuVisible && (
         <Pressable
           style={styles.overlay}
