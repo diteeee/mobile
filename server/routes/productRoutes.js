@@ -9,6 +9,8 @@ const router = express.Router();
 // Get all products
 router.get('/', ProductController.getAllProducts);
 
+router.get('/:id', ProductController.getProductById);  // <-- added route for product by id
+
 // Add a new product
 router.post('/', auth, checkRole(['admin']), ProductController.addProduct);
 

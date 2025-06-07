@@ -17,8 +17,9 @@ import ProductCard from '../components/ProductCard';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import Footer from '../components/Footer';
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {  // get navigation prop
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [products, setProducts] = useState([]);
@@ -191,14 +192,25 @@ const HomeScreen = () => {
     }
   };
 
-  const renderProductCard = ({ item }) => (
-    <ProductCard
-      product={item}
-      onAddToCart={() => handleAddToCart(item._id)}
-      isInWishlist={wishlist.includes(item._id)}
-      onToggleWishlist={() => toggleWishlist(item._id)}
-    />
-  );
+  const handleLeaveReview = (productId) => {
+    router.push({
+      pathname: '/review',  // or the correct path to ReviewScreen
+      params: { productId },
+    });
+  };
+
+  const renderProductCard = ({ item }) => {
+    console.log('Rendering product:', item);
+    return (
+      <ProductCard
+        product={item}
+        onAddToCart={() => handleAddToCart(item._id)}
+        isInWishlist={wishlist.includes(item._id)}
+        onToggleWishlist={() => toggleWishlist(item._id)}
+        onLeaveReview={() => handleLeaveReview(item._id)}
+      />
+    );
+  };
 
   if (loading) {
     return (
@@ -220,8 +232,8 @@ const HomeScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Makeup Store</Text>
+  <View style={styles.container}>
+    <Text style={styles.heading}>Makeup Store</Text>
 
       <View style={styles.dropdownContainer}>
         <DropDownPicker
@@ -242,26 +254,34 @@ const HomeScreen = () => {
         />
       </View>
 
-      {products.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <Text style={styles.messageText}>No products found in this category.</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={products}
-          renderItem={renderProductCard}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+      {/* Wrap FlatList or message in a flex:1 View */}
+      <View style={{ flex: 1 }}>
+        {products.length === 0 ? (
+          <View style={styles.centerContainer}>
+            <Text style={styles.messageText}>No products found in this category.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={products}
+            renderItem={renderProductCard}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </View>
 
+      {/* Footer outside scrollable area, sticks to bottom */}
+      <Footer />
+
+      {/* Floating cart button stays as is */}
       <TouchableOpacity
         style={styles.cartButton}
         onPress={() => router.push('/cart')}
       >
         <MaterialIcons name="shopping-cart" size={24} color="#fff" />
       </TouchableOpacity>
+
       <Toast position="bottom" />
     </View>
   );
@@ -275,7 +295,7 @@ const styles = StyleSheet.create({
   },
   cartButton: {
     position: 'absolute',
-    bottom: 16,
+    bottom: 66,
     right: 16,
     backgroundColor: '#880e4f',
     borderRadius: 50,

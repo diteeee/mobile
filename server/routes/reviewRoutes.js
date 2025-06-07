@@ -1,4 +1,3 @@
-// routes/reviewRoutes.js
 const express = require('express');
 const ReviewController = require('../controllers/ReviewController');
 
@@ -8,6 +7,9 @@ const router = express.Router();
 router.post('/', ReviewController.addReview);
 
 // Get all reviews for a specific product
-router.get('/:productId', ReviewController.getProductReviews);
+router.get('/product/:productId', ReviewController.getProductReviews);
+
+// Get all reviews by a specific user
+router.get('/user/:userId', ReviewController.getUserReviews);
 
 module.exports = router;

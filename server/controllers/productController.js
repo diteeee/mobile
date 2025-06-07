@@ -15,6 +15,19 @@ const ProductController = {
     }
   },
 
+  async getProductById(req, res) {
+    try {
+      const { id } = req.params;
+      const product = await Product.findById(id).populate('category');
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+      res.status(200).json(product);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   async addProduct(req, res) {
     try {
       const { name, description, price, stock, category, imageUrl } = req.body;

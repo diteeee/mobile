@@ -6,12 +6,13 @@ import HomeScreen from './screens/HomeScreen';
 import WishlistScreen from './screens/WishlistScreen';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import YourReviewsScreen from './screens/YourReviewsScreen';
+import Footer from './components/Footer';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   useEffect(() => {
-    // Test Toast on App launch
     Toast.show({
       type: 'success',
       text1: 'Toast Test',
@@ -23,21 +24,19 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerStyle: {
-            backgroundColor: '#ffcdf5',
-          },
+          headerStyle: { backgroundColor: '#ffcdf5' },
           headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
+          headerTitleStyle: { fontWeight: 'bold' },
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Wishlist" component={WishlistScreen} />
         <Stack.Screen name="SignIn" component={SignInScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen name="YourReviews" component={YourReviewsScreen} />
       </Stack.Navigator>
-      <Toast /> {/* Ensure Toast is properly included here */}
+      <Toast />
+      <Footer />
     </NavigationContainer>
   );
 }

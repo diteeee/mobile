@@ -9,6 +9,7 @@ const ProductCard = ({
   isInWishlist,
   onToggleWishlist,
   hideWishlistButton = false, // New prop
+  onLeaveReview, // New prop for handling review functionality
 }) => {
   const price = typeof product.price === 'number' ? product.price : 0;
 
@@ -42,6 +43,14 @@ const ProductCard = ({
           </Text>
         </TouchableOpacity>
       )}
+
+      {/* Leave Review Button */}
+      <TouchableOpacity
+        style={styles.reviewButton}
+        onPress={() => onLeaveReview(product._id)}
+      >
+        <Text style={styles.reviewButtonText}>Leave Review</Text>
+      </TouchableOpacity>
 
       {/* Wishlist button */}
       {!hideWishlistButton && (
@@ -114,8 +123,21 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 25,
+    marginBottom: 8,
   },
   addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  reviewButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    marginTop: 8,
+  },
+  reviewButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
