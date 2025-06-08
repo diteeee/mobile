@@ -94,7 +94,7 @@ const ReviewScreen = () => {
         product: productId,
         user: userId,
         rating: Number(rating),
-        text: reviewText.trim(),
+        comment: reviewText.trim(),
       });
 
       Toast.show({
