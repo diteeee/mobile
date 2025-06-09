@@ -55,7 +55,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.4:5000/categories`);
+      const response = await axios.get(`http://192.168.1.12:5000/categories`);
 
       const fetchedCategories = response.data.map((cat) => ({
         label: cat.name,
@@ -78,7 +78,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
 
   const fetchProducts = async (categoryId) => {
     try {
-      const response = await axios.get(`http://192.168.1.4:5000/products`, {
+      const response = await axios.get(`http://192.168.1.12:5000/products`, {
         params: categoryId !== 'all' ? { categoryId } : {},
       });
 
@@ -96,7 +96,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
     const fetchWishlist = async () => {
       if (userId && token) {
         try {
-          const response = await axios.get(`http://192.168.1.4:5000/wishlists/${userId}`, {
+          const response = await axios.get(`http://192.168.1.12:5000/wishlists/${userId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setWishlist(response.data.products.map((product) => product._id));
@@ -127,7 +127,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
     try {
       if (isInWishlist) {
         await axios.delete(
-          `http://192.168.1.4:5000/wishlists/${userId}/${productId}`,
+          `http://192.168.1.12:5000/wishlists/${userId}/${productId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setWishlist(wishlist.filter((id) => id !== productId));
@@ -137,7 +137,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
         });
       } else {
         await axios.post(
-          `http://192.168.1.4:5000/wishlists/`,
+          `http://192.168.1.12:5000/wishlists/`,
           { user: userId, product: productId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -170,7 +170,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
 
     try {
       await axios.post(
-        `http://192.168.1.4:5000/carts/add`,
+        `http://192.168.1.12:5000/carts/add`,
         { user: userId, product: productId, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );

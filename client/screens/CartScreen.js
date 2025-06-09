@@ -52,7 +52,7 @@ const CartScreen = () => {
   const fetchCart = async (userId, authToken) => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://192.168.1.4:5000/carts/${userId}`, {
+      const response = await axios.get(`http://192.168.1.12:5000/carts/${userId}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
 
@@ -80,7 +80,7 @@ const CartScreen = () => {
 
     try {
       await axios.put(
-        'http://192.168.1.4:5000/carts/update-quantity',
+        'http://192.168.1.12:5000/carts/update-quantity',
         { user: userId, product: productId, quantity: newQuantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -98,40 +98,14 @@ const CartScreen = () => {
     }
   };
 
-  const handlePlaceOrder = async (totalPrice) => {
-    try {
-      const response = await axios.post(
-        'http://192.168.1.4:5000/orders',
-        { user: userId, products: cartItems, totalPrice },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      console.log('Order placed:', totalPrice);
-
-      Toast.show({
-        type: 'success',
-        text1: 'Order Placed',
-        text2: 'Your order was placed successfully!',
-      });
-
-      // Clear the cart locally
-      setCartItems([]);
-
-      // Optionally clear the cart on the backend
-      await axios.post(
-        'http://192.168.1.4:5000/carts/clear',
-        { user: userId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (error) {
-      console.error('Error placing order:', error);
-      Alert.alert('Error', 'Failed to place the order.');
-    }
+  const handlePlaceOrder = (totalPrice) => {
+    router.push('/orderscreen'); // Navigate to the OrderScreen
   };
 
   const handleRemoveFromCart = async (productId) => {
     try {
       await axios.post(
-        'http://192.168.1.4:5000/carts/remove',
+        'http://192.168.1.12:5000/carts/remove',
         { user: userId, product: productId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
