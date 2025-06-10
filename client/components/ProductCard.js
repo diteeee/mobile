@@ -8,8 +8,9 @@ const ProductCard = ({
   showAddToCart = true,
   isInWishlist,
   onToggleWishlist,
-  hideWishlistButton = false, // New prop
-  onLeaveReview, // New prop for handling review functionality
+  hideWishlistButton = false, // Prop to hide wishlist button
+  hideReviewButton = false, // New prop to hide review button
+  onLeaveReview, // Prop for handling review functionality
 }) => {
   const price = typeof product.price === 'number' ? product.price : 0;
 
@@ -45,14 +46,16 @@ const ProductCard = ({
       )}
 
       {/* Leave Review Button */}
-      <TouchableOpacity
-        style={styles.reviewButton}
-        onPress={() => onLeaveReview(product._id)}
-      >
-        <Text style={styles.reviewButtonText}>Leave Review</Text>
-      </TouchableOpacity>
+      {!hideReviewButton && (
+        <TouchableOpacity
+          style={styles.reviewButton}
+          onPress={() => onLeaveReview(product._id)}
+        >
+          <Text style={styles.reviewButtonText}>Leave Review</Text>
+        </TouchableOpacity>
+      )}
 
-      {/* Wishlist button */}
+      {/* Wishlist Button */}
       {!hideWishlistButton && (
         <TouchableOpacity
           style={styles.wishlistButton}

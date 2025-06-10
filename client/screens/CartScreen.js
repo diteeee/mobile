@@ -121,7 +121,7 @@ const CartScreen = () => {
 
   const renderCartItem = ({ item }) => (
     <View style={styles.cartItem}>
-      <ProductCard product={item.product} showAddToCart={false} hideWishlistButton={true}/>
+      <ProductCard product={item.product} showAddToCart={false} hideWishlistButton={true} hideReviewButton={true}/>
       <View style={styles.quantityWrapper}>
         <TouchableOpacity
           style={styles.quantityButton}

@@ -123,6 +123,7 @@ const WishlistScreen = () => {
         showAddToCart={true}
         onAddToCart={() => handleAddToCart(item._id)}
         hideWishlistButton={true}
+        hideReviewButton={true}
       />
       <Button
         title="Remove"
@@ -159,6 +160,12 @@ const WishlistScreen = () => {
           <Text style={styles.messageText}>
             Your wishlist is empty. Add products to see them here!
           </Text>
+          <TouchableOpacity
+            style={styles.seeProductsButton}
+            onPress={() => router.push('/')}
+          >
+            <Text style={styles.seeProductsButtonText}>See Products</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -244,6 +251,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+  },
+  seeProductsButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: '#f48fb1', // light pink
+    borderRadius: 30,
+    shadowColor: '#c2185b', // shadow color
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+    elevation: 4, // for Android shadow
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  seeProductsButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
 });
 

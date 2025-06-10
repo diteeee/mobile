@@ -50,8 +50,10 @@ const OrderScreen = () => {
   }, [isFocused]);
 
   const placeOrder = async () => {
+    console.log('Placing order...'); // Debugging
     try {
       if (cart.length === 0) {
+        console.log('Cart is empty'); // Debugging
         Toast.show({
           type: 'info',
           text1: 'Your cart is empty',
@@ -66,18 +68,22 @@ const OrderScreen = () => {
         return sum + price * quantity;
       }, 0);
 
+      console.log('Total price calculated:', totalPrice); // Debugging
+
       const response = await axios.post(
         'http://192.168.1.12:5000/orders',
         {
           user: userId,
           products: cart.map((item) => ({ product: item._id, quantity: item.quantity })),
           totalPrice,
-          paymentMethod, // include payment method
+          paymentMethod,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
+      console.log('Order response:', response.data); // Debugging
 
       Toast.show({
         type: 'success',
@@ -92,7 +98,7 @@ const OrderScreen = () => {
       );
       setCart([]);
     } catch (error) {
-      console.error('Error placing order:', error);
+      console.error('Error placing order:', error); // Debugging
       Toast.show({
         type: 'error',
         text1: 'Failed to place order',
@@ -179,7 +185,7 @@ const OrderScreen = () => {
         <Text style={styles.emptyCartText}>Your cart is empty.</Text>
       )}
 
-      <Toast />
+      <Toast position="bottom" />
     </View>
   );
 };
