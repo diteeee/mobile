@@ -200,7 +200,6 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
   };
 
   const renderProductCard = ({ item }) => {
-    console.log('Rendering product:', item);
     return (
       <ProductCard
         product={item}

@@ -68,6 +68,13 @@ export default function RootLayout() {
           },
         },
         {
+          label: 'Profile',
+          action: () => {
+            setMenuVisible(false); // Close dropdown
+            router.push('/profile');
+          },
+        },
+        {
           label: 'Sign Out',
           action: async () => {
             setMenuVisible(false); // Close dropdown
