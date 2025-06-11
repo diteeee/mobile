@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
+import { showNotification } from '../utils/PushNotificationConfig'; // Import your notification utility
 
 const ForgotPasswordScreen = () => {
   const router = useRouter();
@@ -23,12 +25,12 @@ const ForgotPasswordScreen = () => {
 
   const handleResetPassword = async () => {
     if (!email || !newPassword || !confirmNewPassword) {
-      Alert.alert('Error', 'Please fill all fields.');
+      showNotification('Error', 'Please fill all fields.');
       return;
     }
 
     if (newPassword !== confirmNewPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
+      showNotification('Error', 'Passwords do not match.');
       return;
     }
 
@@ -39,10 +41,11 @@ const ForgotPasswordScreen = () => {
         newPassword,
         confirmNewPassword,
       });
-      // Navigate to /signin directly after success
-      router.push('/signin');
+
+      showNotification('Success', 'Password reset successfully.');
+      router.push('/signin'); // Navigate to /signin directly after success
     } catch (error) {
-      Alert.alert(
+      showNotification(
         'Error',
         error.response?.data?.message || 'An error occurred. Please try again.'
       );
@@ -97,6 +100,7 @@ const ForgotPasswordScreen = () => {
           <Text style={styles.buttonText}>Reset Password</Text>
         )}
       </TouchableOpacity>
+      <Toast />
     </KeyboardAvoidingView>
   );
 };
