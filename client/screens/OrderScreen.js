@@ -12,6 +12,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
+import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
 
 const OrderScreen = () => {
   const [cart, setCart] = useState([]);
@@ -38,7 +39,7 @@ const OrderScreen = () => {
         }
       } catch (error) {
         console.error('Error fetching cart:', error);
-        Alert.alert('Error', 'Failed to load cart data.');
+        showNotification('Error', 'Failed to load cart data.');
       } finally {
         setLoading(false);
       }
@@ -54,11 +55,7 @@ const OrderScreen = () => {
     try {
       if (cart.length === 0) {
         console.log('Cart is empty'); // Debugging
-        Toast.show({
-          type: 'info',
-          text1: 'Your cart is empty',
-          text2: 'Add products to the cart before placing an order.',
-        });
+        showNotification('Info', 'Your cart is empty. Add products to place an order.');
         return;
       }
 
@@ -85,11 +82,10 @@ const OrderScreen = () => {
 
       console.log('Order response:', response.data); // Debugging
 
-      Toast.show({
-        type: 'success',
-        text1: 'Order placed successfully!',
-        text2: `Thank you for your purchase. Payment method: ${paymentMethod}`,
-      });
+      showNotification(
+        'Success',
+        `Order placed successfully! Payment method: ${paymentMethod}.`
+      );
 
       await axios.post(
         'http://192.168.1.12:5000/carts/clear',
@@ -99,10 +95,7 @@ const OrderScreen = () => {
       setCart([]);
     } catch (error) {
       console.error('Error placing order:', error); // Debugging
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to place order',
-      });
+      showNotification('Error', 'Failed to place order. Please try again.');
     }
   };
 
