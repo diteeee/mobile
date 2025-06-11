@@ -1,4 +1,3 @@
-// HomeScreen.js (with wishlist additions only, nothing else changed)
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -6,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  Alert,
   TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
@@ -18,8 +16,9 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import Footer from '../components/Footer';
+import { showNotification } from '../utils/PushNotificationConfig';
 
-const HomeScreen = ({ navigation }) => {  // get navigation prop
+const HomeScreen = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [products, setProducts] = useState([]);
@@ -27,7 +26,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
   const [errorMessage, setErrorMessage] = useState('');
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [wishlist, setWishlist] = useState([]); // <-- wishlist state added
+  const [wishlist, setWishlist] = useState([]);
   const [open, setOpen] = useState(false);
   const isFocused = useIsFocused();
   const router = useRouter();
@@ -91,7 +90,6 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
     }
   };
 
-  // Fetch wishlist on focus or token/userId changes
   useEffect(() => {
     const fetchWishlist = async () => {
       if (userId && token) {
@@ -111,7 +109,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
     }
   }, [isFocused, userId, token]);
 
- const toggleWishlist = async (productId) => {
+  const toggleWishlist = async (productId) => {
     if (!userId) {
       Toast.show({
         type: 'info',
@@ -119,6 +117,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
         text2: 'You must be logged in to manage your wishlist',
         visibilityTime: 3000,
       });
+      showNotification('Sign In Required', 'You must be logged in to manage your wishlist.');
       return;
     }
 
@@ -135,6 +134,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
           type: 'info',
           text1: 'Removed from Wishlist',
         });
+        showNotification('Wishlist Updated', 'Item removed from your wishlist.');
       } else {
         await axios.post(
           `http://192.168.1.12:5000/wishlists/`,
@@ -146,6 +146,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
           type: 'success',
           text1: 'Added to Wishlist',
         });
+        showNotification('Wishlist Updated', 'Item added to your wishlist.');
       }
     } catch (error) {
       console.error('Error updating wishlist:', error.response?.data || error.message);
@@ -154,6 +155,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
         text1: 'Wishlist Error',
         text2: 'Could not update wishlist.',
       });
+      showNotification('Wishlist Error', 'Could not update wishlist.');
     }
   };
 
@@ -165,6 +167,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
         text2: 'You must be logged in to add products to your cart',
         visibilityTime: 3000,
       });
+      showNotification('Sign In Required', 'You must be logged in to add products to your cart.');
       return;
     }
 
@@ -181,6 +184,7 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
         text2: 'The item has been successfully added to your cart.',
         visibilityTime: 3000,
       });
+      showNotification('Item Added', 'You added a product to your cart!');
     } catch (error) {
       console.error('Error adding to cart:', error);
       Toast.show({
@@ -189,12 +193,24 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
         text2: 'Failed to add product to cart.',
         visibilityTime: 3000,
       });
+      showNotification('Cart Error', 'Failed to add product to cart.');
     }
   };
 
   const handleLeaveReview = (productId) => {
+    if (!userId) {
+      Toast.show({
+        type: 'info',
+        text1: 'Please sign in',
+        text2: 'You must be logged in to leave a review',
+        visibilityTime: 3000,
+      });
+      showNotification('Sign In Required', 'You must be logged in to leave a review.');
+      return;
+    }
+
     router.push({
-      pathname: '/review',  // or the correct path to ReviewScreen
+      pathname: '/review',
       params: { productId },
     });
   };
@@ -231,8 +247,8 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
   }
 
   return (
-  <View style={styles.container}>
-    <Text style={styles.heading}>Makeup Store</Text>
+    <View style={styles.container}>
+      <Text style={styles.heading}>Makeup Store</Text>
 
       <View style={styles.dropdownContainer}>
         <DropDownPicker
@@ -253,7 +269,6 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
         />
       </View>
 
-      {/* Wrap FlatList or message in a flex:1 View */}
       <View style={{ flex: 1 }}>
         {products.length === 0 ? (
           <View style={styles.centerContainer}>
@@ -270,10 +285,8 @@ const HomeScreen = ({ navigation }) => {  // get navigation prop
         )}
       </View>
 
-      {/* Footer outside scrollable area, sticks to bottom */}
       <Footer />
 
-      {/* Floating cart button stays as is */}
       <TouchableOpacity
         style={styles.cartButton}
         onPress={() => router.push('/cart')}
@@ -318,64 +331,55 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  errorText: {
-    color: '#880e4f',
-    fontSize: 18,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: '#880e4f',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-  },
-  retryButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  dropdown: {
-    borderColor: '#880e4f',
-    borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-  },
   dropdownContainer: {
     marginHorizontal: 16,
     marginBottom: 12,
     zIndex: 1000,
   },
-    dropdownText: {
+  dropdown: {
+    borderColor: '#880e4f',
+  },
+  dropdownText: {
     fontSize: 16,
-    color: '#880e4f',
   },
   placeholderText: {
-    color: '#bdbdbd',
-    fontSize: 16,
+    color: '#880e4f',
   },
-    centerContainer: {
+  centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 30,
-    backgroundColor: '#fce4ec',
   },
   messageText: {
     fontSize: 18,
     color: '#880e4f',
-    fontWeight: '600',
+    fontWeight: '500',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    color: 'red',
+    marginBottom: 12,
     textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#880e4f',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 6,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   list: {
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingBottom: 100,
   },
 });
 

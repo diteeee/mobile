@@ -16,6 +16,7 @@ import ProductCard from '../components/ProductCard';
 import PlaceOrderCard from '../components/PlaceOrderCard';
 import Toast from 'react-native-toast-message'; // Import the toast message
 import { useRouter } from 'expo-router';
+import { showNotification } from '../utils/PushNotificationConfig';
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -59,7 +60,7 @@ const CartScreen = () => {
       setCartItems(response.data.products || []);
     } catch (error) {
       console.error('Error fetching cart:', error);
-      Alert.alert('Error', 'Failed to load cart.');
+        showNotification('Error', 'Failed to load cart.');
     } finally {
       setLoading(false);
     }
@@ -74,7 +75,7 @@ const CartScreen = () => {
 
     // If the change is zero or results in quantity < 1, handle item removal
     if (newQuantity < 1) {
-      Alert.alert('Quantity cannot be less than 1');
+      showNotification('Invalid quantity', 'Quantity cannot be less than 1');
       return;
     }
 
@@ -92,9 +93,10 @@ const CartScreen = () => {
         quantity: newQuantity,
       };
       setCartItems(updatedCartItems);
+      showNotification('Success', 'Quantity updated.');
     } catch (error) {
       console.error('Error updating quantity:', error);
-      Alert.alert('Error', 'Failed to update quantity.');
+      showNotification('Error', 'Failed to update quantity.');
     }
   };
 
@@ -113,9 +115,10 @@ const CartScreen = () => {
       // Remove the item locally
       const updatedCartItems = cartItems.filter(item => item.product._id !== productId);
       setCartItems(updatedCartItems);
+      showNotification('Success', 'Item removed from cart.');
     } catch (error) {
       console.error('Error removing item from cart:', error);
-      Alert.alert('Error', 'Failed to remove item from cart.');
+      showNotification('Error', 'Failed to remove item from cart.');
     }
   };
 
