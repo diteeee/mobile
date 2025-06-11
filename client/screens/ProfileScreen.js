@@ -11,6 +11,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
 
 const ProfileScreen = () => {
   const [user, setUser] = useState(null);
@@ -44,7 +45,7 @@ const ProfileScreen = () => {
         });
       } catch (error) {
         console.error('Error fetching user profile:', error);
-        Alert.alert('Error', 'Failed to load profile.');
+        showNotification('Error', 'Failed to load profile.');
       } finally {
         setLoading(false);
       }
@@ -65,16 +66,17 @@ const ProfileScreen = () => {
       );
 
       setUser(response.data.user);
+      showNotification('Success', 'Profile updated successfully.');
       setEditing(false);
-      Alert.alert('Success', 'Profile updated successfully.');
     } catch (error) {
       console.error('Error updating profile:', error);
-      Alert.alert('Error', 'Failed to update profile.');
+      showNotification('Error', 'Failed to update profile.');
     }
   };
 
   const handleLogout = async () => {
     await AsyncStorage.clear();
+    showNotification('Logged Out', 'You have been logged out successfully.');
     router.push('/');
   };
 
@@ -94,11 +96,11 @@ const ProfileScreen = () => {
                 headers: { Authorization: `Bearer ${token}` },
               });
               await AsyncStorage.clear();
-              Alert.alert('Deleted', 'Your account has been deleted.');
+              showNotification('Account Deleted', 'Your account has been deleted.');
               router.push('/');
             } catch (error) {
               console.error('Error deleting account:', error);
-              Alert.alert('Error', 'Failed to delete account.');
+              showNotification('Error', 'Failed to delete account.');
             }
           },
         },
