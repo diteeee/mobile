@@ -12,7 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
+import { showNotification } from '../utils/PushNotificationConfig';
 
 const ProfileScreen = () => {
   const [user, setUser] = useState(null);
@@ -105,7 +105,6 @@ const ProfileScreen = () => {
         confirmDeletion();
       }
     } else {
-      // Use Alert.alert for mobile
       Alert.alert(
         'Confirm Deletion',
         'Do you really want to delete your account? This action cannot be undone.',
@@ -199,6 +198,13 @@ const ProfileScreen = () => {
         </TouchableOpacity>
       )}
 
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => router.push('/yourreviews')}
+      >
+        <Text style={styles.editButtonText}>My Reviews</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
@@ -213,7 +219,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'linear-gradient(135deg, #fce4ec, #f8bbd0)', // fallback for linear-gradient, React Native doesn't support directly, you can use a library like react-native-linear-gradient for actual gradient
+    backgroundColor: 'linear-gradient(135deg, #fce4ec, #f8bbd0)',
     paddingTop: 20,
     paddingHorizontal: 25,
     backgroundColor: '#ffe6f0',
@@ -224,7 +230,7 @@ const styles = StyleSheet.create({
     color: '#ad1457',
     textAlign: 'center',
     marginBottom: 25,
-    fontFamily: 'Cochin', // more elegant serif font
+    fontFamily: 'Cochin',
     textShadowColor: '#f48fb1',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 5,

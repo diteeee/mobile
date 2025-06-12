@@ -1,4 +1,3 @@
-// controllers/CartController.js
 const Cart = require('../models/Cart');
 
 const CartController = {

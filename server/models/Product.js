@@ -1,4 +1,3 @@
-// models/Product.js
 const mongoose = require('mongoose');
 
 const ProductSchema = new mongoose.Schema({
@@ -7,7 +6,7 @@ const ProductSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   stock: { type: Number, required: true },
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
-  imageUrl: { type: String }, // URL for the product image
+  imageUrl: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

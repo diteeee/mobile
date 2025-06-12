@@ -1,7 +1,6 @@
 const Review = require('../models/Review');
 
 const ReviewController = {
-  // Add a new review
   async addReview(req, res) {
     try {
       const { product, user, rating, comment } = req.body;
@@ -13,7 +12,6 @@ const ReviewController = {
     }
   },
 
-  // Get all reviews for a specific product
   async getProductReviews(req, res) {
     try {
       const { productId } = req.params;
@@ -24,7 +22,6 @@ const ReviewController = {
     }
   },
 
-  // Get all reviews by a specific user
   async getUserReviews(req, res) {
     try {
       const { userId } = req.params;

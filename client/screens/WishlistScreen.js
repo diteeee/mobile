@@ -15,7 +15,7 @@ import ProductCard from '../components/ProductCard';
 import Toast from 'react-native-toast-message';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
+import { showNotification } from '../utils/PushNotificationConfig';
 
 const WishlistScreen = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -259,13 +259,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    backgroundColor: '#f48fb1', // light pink
+    backgroundColor: '#f48fb1',
     borderRadius: 30,
-    shadowColor: '#c2185b', // shadow color
+    shadowColor: '#c2185b',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
-    elevation: 4, // for Android shadow
+    elevation: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -9,7 +9,6 @@ const UserController = {
     try {
       const { name, surname, email, password } = req.body;
 
-      // Check if user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).json({ message: 'User with this email already exists.' });
@@ -19,7 +18,6 @@ const UserController = {
       const user = new User({ name, surname, email, password: hashedPassword });
       await user.save();
 
-      // Generate token after registration
       const token = jwt.sign(
         { id: user._id, email: user.email, role: user.role },
         JWT_SECRET,
@@ -54,7 +52,7 @@ const UserController = {
 
   async getAllUsers(req, res) {
     try {
-      const users = await User.find({}, '-password'); // Exclude password field
+      const users = await User.find({}, '-password');
       res.status(200).json(users);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -88,8 +86,8 @@ const UserController = {
   
   async getCurrentUser(req, res) {
     try {
-      console.log('Decoded User:', req.user); // Debug log
-      const user = await User.findById(req.user.id).select('-password'); // `id` comes from the decoded token
+      console.log('Decoded User:', req.user);
+      const user = await User.findById(req.user.id).select('-password');
       if (!user) return res.status(404).json({ error: 'User not found' });
       res.json(user);
     } catch (error) {
@@ -100,7 +98,7 @@ const UserController = {
   async updateProfile(req, res) {
     try {
       const { name, surname, email } = req.body;
-      const userId = req.user.id; // `id` from the decoded token in `auth` middleware
+      const userId = req.user.id;
 
       const updatedUser = await User.findByIdAndUpdate(
         userId,
@@ -120,7 +118,7 @@ const UserController = {
 
   async deleteProfile(req, res) {
     try {
-      const userId = req.user.id; // `id` from the decoded token in `auth` middleware
+      const userId = req.user.id;
 
       const deletedUser = await User.findByIdAndDelete(userId);
 

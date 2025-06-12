@@ -12,14 +12,14 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
+import { showNotification } from '../utils/PushNotificationConfig';
 
 const OrderScreen = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('card'); // default payment method
+  const [paymentMethod, setPaymentMethod] = useState('card');
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -51,10 +51,10 @@ const OrderScreen = () => {
   }, [isFocused]);
 
   const placeOrder = async () => {
-    console.log('Placing order...'); // Debugging
+    console.log('Placing order...');
     try {
       if (cart.length === 0) {
-        console.log('Cart is empty'); // Debugging
+        console.log('Cart is empty');
         showNotification('Info', 'Your cart is empty. Add products to place an order.');
         return;
       }
@@ -65,7 +65,7 @@ const OrderScreen = () => {
         return sum + price * quantity;
       }, 0);
 
-      console.log('Total price calculated:', totalPrice); // Debugging
+      console.log('Total price calculated:', totalPrice);
 
       const response = await axios.post(
         'http://192.168.1.11:5000/orders',
@@ -80,7 +80,7 @@ const OrderScreen = () => {
         }
       );
 
-      console.log('Order response:', response.data); // Debugging
+      console.log('Order response:', response.data);
 
       showNotification(
         'Success',
@@ -94,7 +94,7 @@ const OrderScreen = () => {
       );
       setCart([]);
     } catch (error) {
-      console.error('Error placing order:', error); // Debugging
+      console.error('Error placing order:', error);
       showNotification('Error', 'Failed to place order. Please try again.');
     }
   };

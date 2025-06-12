@@ -13,7 +13,7 @@ import {
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
+import { showNotification } from '../utils/PushNotificationConfig';
 import Toast from 'react-native-toast-message';
 
 const SignInScreen = () => {
@@ -41,7 +41,6 @@ const SignInScreen = () => {
 
       const { token, user } = response.data;
 
-      // Save token and userId in AsyncStorage
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('userId', user.id);
 
@@ -112,19 +111,19 @@ const SignInScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fce4ec', // soft pink pastel background
+    backgroundColor: '#fce4ec',
     justifyContent: 'center',
     paddingHorizontal: 30,
   },
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#880e4f', // deep berry color
+    color: '#880e4f',
     marginBottom: 30,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#f8bbd0', // lighter pink
+    backgroundColor: '#f8bbd0',
     borderRadius: 25,
     paddingVertical: 14,
     paddingHorizontal: 20,

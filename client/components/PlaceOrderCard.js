@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 
 const PlaceOrderCard = ({ cartItems, onPlaceOrder }) => {
-  // Calculate the total price of all items in the cart
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.product.price * item.quantity,
     0
@@ -21,7 +20,6 @@ const PlaceOrderCard = ({ cartItems, onPlaceOrder }) => {
       return;
     }
 
-    // Trigger the passed `onPlaceOrder` function
     onPlaceOrder(totalPrice);
   };
 

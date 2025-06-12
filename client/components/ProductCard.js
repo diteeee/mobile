@@ -8,9 +8,9 @@ const ProductCard = ({
   showAddToCart = true,
   isInWishlist,
   onToggleWishlist,
-  hideWishlistButton = false, // Prop to hide wishlist button
-  hideReviewButton = false, // New prop to hide review button
-  onLeaveReview, // Prop for handling review functionality
+  hideWishlistButton = false,
+  hideReviewButton = false,
+  onLeaveReview,
 }) => {
   const price = typeof product.price === 'number' ? product.price : 0;
 
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center',
-    position: 'relative', // needed for wishlist button
+    position: 'relative',
   },
   image: {
     width: '90%',

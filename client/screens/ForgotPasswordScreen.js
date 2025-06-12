@@ -13,7 +13,7 @@ import {
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { showNotification } from '../utils/PushNotificationConfig'; // Import your notification utility
+import { showNotification } from '../utils/PushNotificationConfig';
 
 const ForgotPasswordScreen = () => {
   const router = useRouter();
@@ -43,7 +43,7 @@ const ForgotPasswordScreen = () => {
       });
 
       showNotification('Success', 'Password reset successfully.');
-      router.push('/signin'); // Navigate to /signin directly after success
+      router.push('/signin');
     } catch (error) {
       showNotification(
         'Error',

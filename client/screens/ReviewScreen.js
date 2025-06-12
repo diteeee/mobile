@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
-import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
+import { showNotification } from '../utils/PushNotificationConfig';
 
 const ReviewScreen = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -75,7 +75,6 @@ const ReviewScreen = () => {
   }, [productId]);
 
   const handleSubmitReview = async () => {
-    // Basic validation
     if (!rating || isNaN(rating) || rating < 1 || rating > 5) {
       Toast.show({
         type: 'error',

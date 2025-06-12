@@ -34,10 +34,8 @@ export default function RootLayout() {
   };
 
   useEffect(() => {
-    // Initial token check
     checkToken();
 
-    // Add a navigation event listener to re-check token
     const unsubscribe = navigation.addListener('focus', checkToken);
 
     return unsubscribe;
@@ -63,21 +61,21 @@ export default function RootLayout() {
         {
           label: 'Wishlist',
           action: () => {
-            setMenuVisible(false); // Close dropdown
+            setMenuVisible(false);
             router.push('/wishlist');
           },
         },
         {
           label: 'Profile',
           action: () => {
-            setMenuVisible(false); // Close dropdown
+            setMenuVisible(false);
             router.push('/profile');
           },
         },
         {
           label: 'Sign Out',
           action: async () => {
-            setMenuVisible(false); // Close dropdown
+            setMenuVisible(false);
             await handleSignOut();
           },
         },
@@ -86,14 +84,14 @@ export default function RootLayout() {
         {
           label: 'Sign In',
           action: () => {
-            setMenuVisible(false); // Close dropdown
+            setMenuVisible(false);
             router.push('/signin');
           },
         },
         {
           label: 'Sign Up',
           action: () => {
-            setMenuVisible(false); // Close dropdown
+            setMenuVisible(false);
             router.push('/signup');
           },
         },
@@ -110,7 +108,7 @@ export default function RootLayout() {
           ref={iconRef}
           onPress={() => {
             handleIconLayout();
-            checkToken(); // Re-check token when menu is opened
+            checkToken();
             setMenuVisible((v) => !v);
           }}
         >
@@ -121,7 +119,7 @@ export default function RootLayout() {
       {menuVisible && (
         <Pressable
           style={styles.overlay}
-          onPress={() => setMenuVisible(false)} // Close dropdown on outside touch
+          onPress={() => setMenuVisible(false)}
         />
       )}
 
@@ -165,11 +163,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#cd9faf',
   },
-  navbarTitle: {
-    color: '#fff',
-    fontSize: 20,
-    // fontWeight: 'bold',
-  },
+navbarTitle: {
+  fontSize: 28,
+  fontFamily: 'Times New Roman',
+  color: '#fff',
+  fontStyle: 'italic',
+  textShadowColor: '#e3a1aa',
+  textShadowOffset: { width: 1, height: 1 },
+  textShadowRadius: 2,
+  letterSpacing: 2,
+},
   dropdownMenu: {
     position: 'absolute',
     backgroundColor: '#fff',
@@ -198,6 +201,6 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
     backgroundColor: 'transparent',
-    zIndex: 5, // Ensure overlay is above other elements but below the menu
+    zIndex: 5,
   },
 });

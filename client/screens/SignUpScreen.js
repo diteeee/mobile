@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
+import { showNotification } from '../utils/PushNotificationConfig';
 import Toast from 'react-native-toast-message';
 
 const SignUpScreen = () => {
@@ -138,7 +138,7 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fce4ec', // soft pink pastel background (same as sign in)
+    backgroundColor: '#fce4ec',
     justifyContent: 'center',
     paddingHorizontal: 30,
   },
@@ -149,12 +149,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#880e4f', // deep berry color (same as sign in)
+    color: '#880e4f',
     marginBottom: 30,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#f8bbd0', // lighter pink (same as sign in)
+    backgroundColor: '#f8bbd0',
     borderRadius: 25,
     paddingVertical: 14,
     paddingHorizontal: 20,

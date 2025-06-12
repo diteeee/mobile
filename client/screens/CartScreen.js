@@ -14,7 +14,7 @@ import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProductCard from '../components/ProductCard';
 import PlaceOrderCard from '../components/PlaceOrderCard';
-import Toast from 'react-native-toast-message'; // Import the toast message
+import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
 import { showNotification } from '../utils/PushNotificationConfig';
 
@@ -24,7 +24,7 @@ const CartScreen = () => {
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const isFocused = useIsFocused();
-  const router = useRouter(); // Get router instance
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTokenAndCart = async () => {
@@ -68,12 +68,11 @@ const CartScreen = () => {
 
   const handleQuantityChange = async (productId, change) => {
     const currentItemIndex = cartItems.findIndex(item => item.product._id === productId);
-    if (currentItemIndex === -1) return; // Item not found
+    if (currentItemIndex === -1) return;
 
     const currentItem = cartItems[currentItemIndex];
     const newQuantity = currentItem.quantity + change;
 
-    // If the change is zero or results in quantity < 1, handle item removal
     if (newQuantity < 1) {
       showNotification('Invalid quantity', 'Quantity cannot be less than 1');
       return;
@@ -86,7 +85,6 @@ const CartScreen = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update the specific item's quantity locally
       const updatedCartItems = [...cartItems];
       updatedCartItems[currentItemIndex] = {
         ...currentItem,
@@ -101,7 +99,7 @@ const CartScreen = () => {
   };
 
   const handlePlaceOrder = (totalPrice) => {
-    router.push('/orderscreen'); // Navigate to the OrderScreen
+    router.push('/orderscreen');
   };
 
   const handleRemoveFromCart = async (productId) => {
@@ -112,7 +110,6 @@ const CartScreen = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Remove the item locally
       const updatedCartItems = cartItems.filter(item => item.product._id !== productId);
       setCartItems(updatedCartItems);
       showNotification('Success', 'Item removed from cart.');
@@ -252,16 +249,16 @@ const styles = StyleSheet.create({
   },
   quantityWrapper: {
     flexDirection: 'row',
-    justifyContent: 'center', // center horizontally
+    justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 12,
-    gap: 20, // spacing between buttons and text (if unsupported, remove and rely on margins)
+    gap: 20,
   },
   quantityButton: {
-    backgroundColor: '#ab47bc', // softer purple
+    backgroundColor: '#ab47bc',
     paddingVertical: 10,
     paddingHorizontal: 18,
-    borderRadius: 25, // pill shape
+    borderRadius: 25,
     shadowColor: '#6200ea',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
@@ -286,13 +283,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    backgroundColor: '#f48fb1', // light pink
+    backgroundColor: '#f48fb1',
     borderRadius: 30,
-    shadowColor: '#c2185b', // shadow color
+    shadowColor: '#c2185b',
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
-    elevation: 4, // for Android shadow
+    elevation: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
