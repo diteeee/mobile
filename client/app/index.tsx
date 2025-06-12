@@ -211,7 +211,7 @@ const HomeScreen = ({ navigation }) => {
 
     router.push({
       pathname: '/review',
-      params: { productId },
+      params: { productId }, // or just productId variable
     });
   };
 

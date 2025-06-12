@@ -16,11 +16,13 @@ import { useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
 import { showNotification } from '../utils/PushNotificationConfig';
+import { useSearchParams } from 'expo-router';
+import { useRoute } from '@react-navigation/native';
 
 const ReviewScreen = () => {
-  const searchParams = new URLSearchParams(window.location.search);
-  const productId = searchParams.get('productId') || 'No ID';
-
+  const route = useRoute();
+  const { productId } = route.params ?? {};
+  
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState('');
@@ -53,9 +55,6 @@ const ReviewScreen = () => {
     }
   }, [isFocused]);
 
-  console.log("review prod", productId);
-  console.log("review user", userId);
-
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -63,7 +62,6 @@ const ReviewScreen = () => {
         setProduct(response.data);
       } catch (error) {
         Alert.alert('Error', 'Failed to load product details.');
-        showNotification('Error', 'Failed to load product details.');
       } finally {
         setLoading(false);
       }
@@ -107,7 +105,10 @@ const ReviewScreen = () => {
           router.push('/yourreviews');
         },
       });
-      showNotification('Thank you', 'You left a review.');
+      showNotification('Thank you for your review', 'You left a review.');
+      setTimeout(() => {
+        router.push('/');
+      }, 5000);
     } catch (error) {
       console.error('Error in addReview:', error);
       Toast.show({
