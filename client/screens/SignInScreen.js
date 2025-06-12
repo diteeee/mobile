@@ -13,6 +13,7 @@ import {
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
 
 const SignInScreen = () => {
   const router = useRouter();
@@ -23,7 +24,13 @@ const SignInScreen = () => {
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill out all fields.');
+      if (Platform.OS === 'web') {
+        // Use web alert
+        window.alert('Error: Please fill out all fields.');
+      } else {
+        // Use native alert
+        Alert.alert('Error', 'Please fill out all fields.');
+      }
       return;
     }
 
@@ -41,12 +48,14 @@ const SignInScreen = () => {
       await AsyncStorage.setItem('userId', user.id);
 
       Alert.alert('Success', 'You are now signed in!');
+      showNotification('Welcome', 'You have successfully signed in.');
       router.push('/');
     } catch (error) {
       Alert.alert(
         'Login Failed',
         error.response?.data?.message || 'An error occurred. Please try again.'
       );
+      showNotification('Error', 'Failed to login.');
     } finally {
       setLoading(false);
     }
