@@ -56,6 +56,14 @@ export default function RootLayout() {
   };
 
   const menuOptions = [
+    {
+      label: 'About Us',
+      action: () => {
+        setMenuVisible(false);
+        router.push('/aboutus');
+
+    },
+  },
   ...(isLoggedIn
     ? [
         {
