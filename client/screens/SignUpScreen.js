@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
+import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
+import Toast from 'react-native-toast-message';
 
 const SignUpScreen = () => {
   const router = useRouter();
@@ -26,7 +28,10 @@ const SignUpScreen = () => {
 
   const handleSignUp = async () => {
     if (!name || !surname || !email || !password) {
-      Alert.alert('Error', 'Please fill out all fields.');
+      Toast.show({
+        type: 'error',
+        text1: 'Please fill out all the fields.',
+      });
       return;
     }
 
@@ -40,13 +45,22 @@ const SignUpScreen = () => {
       });
 
       Alert.alert('Success', 'Registration successful! Please sign in.');
+      showNotification('Success', 'You have successfully signed up!');
       router.push('/signin');
     } catch (error) {
-      console.error('Sign up error:', error.response?.data || error.message);
-      Alert.alert(
-        'Registration Failed',
-        error.response?.data?.message || 'An error occurred. Please try again.'
-      );
+      const errorMessage = error.response?.data?.message || 'An error occurred. Please try again.';
+      
+      if (errorMessage === 'User with this email already exists.') {
+        Toast.show({
+        type: 'error',
+        text1: 'User with this email already exists.'
+      });
+      } else {
+        Toast.show({
+        type: 'error',
+        text1: 'Failed to register.'
+      });
+      }
     } finally {
       setLoading(false);
     }
@@ -116,6 +130,7 @@ const SignUpScreen = () => {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      <Toast position="bottom" /> 
     </KeyboardAvoidingView>
   );
 };

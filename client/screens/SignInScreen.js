@@ -14,6 +14,7 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
+import Toast from 'react-native-toast-message';
 
 const SignInScreen = () => {
   const router = useRouter();
@@ -24,13 +25,10 @@ const SignInScreen = () => {
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      if (Platform.OS === 'web') {
-        // Use web alert
-        window.alert('Error: Please fill out all fields.');
-      } else {
-        // Use native alert
-        Alert.alert('Error', 'Please fill out all fields.');
-      }
+      Toast.show({
+        type: 'error',
+        text1: 'Please fill out all the fields.',
+      });
       return;
     }
 
@@ -106,6 +104,7 @@ const SignInScreen = () => {
       <TouchableOpacity onPress={() => router.push('/signup')} style={styles.signupBtn}>
         <Text style={styles.signupText}>Don't have an account? <Text style={{fontWeight: 'bold'}}>Sign Up</Text></Text>
       </TouchableOpacity>
+      <Toast position="bottom" /> 
     </KeyboardAvoidingView>
   );
 };
