@@ -15,6 +15,7 @@ import ProductCard from '../components/ProductCard';
 import Toast from 'react-native-toast-message';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
 
 const WishlistScreen = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -39,6 +40,7 @@ const WishlistScreen = () => {
         }
       } catch (error) {
         console.error('Error fetching token or wishlist:', error);
+        showNotification('Error', 'Failed to load data.');
         setLoading(false);
       }
     };
@@ -76,12 +78,12 @@ const WishlistScreen = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      await fetchWishlist(userId, token);
       Toast.show({
         type: 'info',
         text1: 'Removed',
         text2: 'Product removed from wishlist.',
       });
+      await fetchWishlist(userId, token);
     } catch (error) {
       console.error('Error removing product:', error);
       Toast.show({
@@ -106,6 +108,7 @@ const WishlistScreen = () => {
         text1: 'Added to Cart',
         text2: 'Product added to cart successfully.',
       });
+      showNotification('Success', 'Product added to cart!');
     } catch (error) {
       console.error('Error adding product to cart:', error);
       Toast.show({
