@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -33,7 +34,7 @@ const ProfileScreen = () => {
           return;
         }
 
-        const response = await axios.get('http://192.168.1.12:5000/users/me', {
+        const response = await axios.get('http://192.168.1.11:5000/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -58,7 +59,7 @@ const ProfileScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axios.put(
-        'http://192.168.1.12:5000/users/me',
+        'http://192.168.1.11:5000/users/me',
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -81,32 +82,44 @@ const ProfileScreen = () => {
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
-      'Confirm Deletion',
-      'Do you really want to delete your account? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const token = await AsyncStorage.getItem('token');
-              await axios.delete('http://192.168.1.12:5000/users/me', {
-                headers: { Authorization: `Bearer ${token}` },
-              });
-              await AsyncStorage.clear();
-              showNotification('Account Deleted', 'Your account has been deleted.');
-              router.push('/');
-            } catch (error) {
-              console.error('Error deleting account:', error);
-              showNotification('Error', 'Failed to delete account.');
-            }
+    const confirmDeletion = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        await axios.delete('http://192.168.1.11:5000/users/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        await AsyncStorage.clear();
+        showNotification('Account Deleted', 'Your account has been deleted.');
+        router.push('/');
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        showNotification('Error', 'Failed to delete account.');
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const isConfirmed = window.confirm(
+        'Do you really want to delete your account? This action cannot be undone.'
+      );
+      if (isConfirmed) {
+        confirmDeletion();
+      }
+    } else {
+      // Use Alert.alert for mobile
+      Alert.alert(
+        'Confirm Deletion',
+        'Do you really want to delete your account? This action cannot be undone.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: confirmDeletion,
           },
-        },
-      ],
-      { cancelable: true }
-    );
+        ],
+        { cancelable: true }
+      );
+    }
   };
 
   if (loading) {

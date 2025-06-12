@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
+import { showNotification } from '../utils/PushNotificationConfig'; // Import notification utility
 
 const ReviewScreen = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -42,6 +43,7 @@ const ReviewScreen = () => {
       } catch (error) {
         console.error('Error fetching token:', error);
         setErrorMessage('Failed to load data. Please try again later.');
+        showNotification('Error', 'Failed to load data.');
         setLoading(false);
       }
     };
@@ -57,10 +59,11 @@ const ReviewScreen = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.12:5000/products/${productId}`);
+        const response = await axios.get(`http://192.168.1.11:5000/products/${productId}`);
         setProduct(response.data);
       } catch (error) {
         Alert.alert('Error', 'Failed to load product details.');
+        showNotification('Error', 'Failed to load product details.');
       } finally {
         setLoading(false);
       }
@@ -90,7 +93,7 @@ const ReviewScreen = () => {
 
     setSubmitting(true);
     try {
-      await axios.post(`http://192.168.1.12:5000/reviews`, {
+      await axios.post(`http://192.168.1.11:5000/reviews`, {
         product: productId,
         user: userId,
         rating: Number(rating),
@@ -105,13 +108,14 @@ const ReviewScreen = () => {
           router.push('/yourreviews');
         },
       });
-
+      showNotification('Thank you', 'You left a review.');
     } catch (error) {
       console.error('Error in addReview:', error);
       Toast.show({
         type: 'error',
         text1: 'Failed to submit review.'
       });
+      showNotification('Error', 'Failed to submit review.');
     } finally {
       setSubmitting(false);
     }
