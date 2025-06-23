@@ -34,7 +34,7 @@ const SignInScreen = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://192.168.1.11:5000/users/login', {
+      const response = await axios.post('http://192.168.1.5:5000/users/login', {
         email,
         password,
       });

@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
+  StyleSheet,
   Platform,
 } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
-import { showNotification } from '../utils/PushNotificationConfig';
 
 const ForgotPasswordScreen = () => {
   const router = useRouter();
@@ -23,32 +21,96 @@ const ForgotPasswordScreen = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleResetPassword = async () => {
-    if (!email || !newPassword || !confirmNewPassword) {
-      showNotification('Error', 'Please fill all fields.');
+  const [tokenDigits, setTokenDigits] = useState(['', '', '', '', '', '']);
+  const inputsRef = useRef([]);
+
+  const handleDigitChange = (text, index) => {
+    if (text.length > 1) return; // only one digit per box
+    const newTokenDigits = [...tokenDigits];
+    newTokenDigits[index] = text;
+    setTokenDigits(newTokenDigits);
+
+    // auto-focus next input if input not empty and not last box
+    if (text && index < 5) {
+      inputsRef.current[index + 1].focus();
+    }
+    // if deleting and empty, focus previous
+    else if (!text && index > 0) {
+      inputsRef.current[index - 1].focus();
+    }
+  };
+
+  const resetToken = tokenDigits.join('');
+  const [step, setStep] = useState(1);
+
+  const handleRequestReset = async () => {
+    if (!email) {
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Please enter your email.' });
       return;
     }
+    try {
+      setLoading(true);
+      await axios.post('http://192.168.1.5:5000/users/request-password-reset', { email });
+      Toast.show({ type: 'success', text1: 'Success', text2: 'Reset code sent to your email.' });
+      setStep(2);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'An error occurred. Please try again.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    if (newPassword !== confirmNewPassword) {
-      showNotification('Error', 'Passwords do not match.');
+  const handleVerifyToken = async () => {
+    if (!resetToken) {
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Please enter the reset token.' });
       return;
     }
 
     try {
       setLoading(true);
-      const response = await axios.post('http://192.168.1.11:5000/users/reset-password', {
-        email,
-        newPassword,
-        confirmNewPassword,
+      // Call your backend verify-token endpoint (make sure it exists)
+      await axios.post('http://192.168.1.5:5000/users/verify-token', { token: resetToken });
+      Toast.show({ type: 'success', text1: 'Success', text2: 'Token verified. Please reset your password.' });
+      setStep(3);
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'Invalid or expired token.',
       });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      showNotification('Success', 'Password reset successfully.');
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmNewPassword) {
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Please fill all password fields.' });
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Passwords do not match.' });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axios.post('http://192.168.1.5:5000/users/reset-password', {
+        token: resetToken,
+        newPassword,
+      });
+      Toast.show({ type: 'success', text1: 'Success', text2: 'Password reset successfully.' });
       router.push('/signin');
     } catch (error) {
-      showNotification(
-        'Error',
-        error.response?.data?.message || 'An error occurred. Please try again.'
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.response?.data?.message || 'An error occurred. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
@@ -59,47 +121,89 @@ const ForgotPasswordScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <Text style={styles.title}>Reset Password</Text>
+      {/* Step 1: Request reset code */}
+      {step === 1 && (
+        <>
+          <Text style={styles.title}>Request Password Reset</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your email"
+            placeholderTextColor="#b88fb8"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleRequestReset}
+            disabled={loading}
+          >
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Request Reset Code</Text>}
+          </TouchableOpacity>
+        </>
+      )}
 
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your email"
-        placeholderTextColor="#b88fb8"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
+      {/* Step 2: Verify token */}
+      {step === 2 && (
+        <>
+          <Text style={styles.title}>Verify Reset Code</Text>
+          <View style={styles.tokenContainer}>
+            {tokenDigits.map((digit, index) => (
+              <TextInput
+                key={index}
+                ref={el => (inputsRef.current[index] = el)}
+                style={styles.tokenInput}
+                keyboardType="number-pad"
+                maxLength={1}
+                value={digit}
+                onChangeText={text => handleDigitChange(text, index)}
+                autoFocus={index === 0}
+                textAlign="center"
+                returnKeyType="done"
+              />
+            ))}
+          </View>
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleVerifyToken}
+            disabled={loading}
+          >
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Verify Code</Text>}
+          </TouchableOpacity>
+        </>
+      )}
 
-      <TextInput
-        style={styles.input}
-        placeholder="New password"
-        placeholderTextColor="#b88fb8"
-        secureTextEntry
-        value={newPassword}
-        onChangeText={setNewPassword}
-      />
+      {/* Step 3: Reset password */}
+      {step === 3 && (
+        <>
+          <Text style={styles.title}>Reset Password</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="New password"
+            placeholderTextColor="#b88fb8"
+            secureTextEntry
+            value={newPassword}
+            onChangeText={setNewPassword}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm new password"
+            placeholderTextColor="#b88fb8"
+            secureTextEntry
+            value={confirmNewPassword}
+            onChangeText={setConfirmNewPassword}
+          />
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleResetPassword}
+            disabled={loading}
+          >
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Reset Password</Text>}
+          </TouchableOpacity>
+        </>
+      )}
 
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm new password"
-        placeholderTextColor="#b88fb8"
-        secureTextEntry
-        value={confirmNewPassword}
-        onChangeText={setConfirmNewPassword}
-      />
-
-      <TouchableOpacity
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handleResetPassword}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Reset Password</Text>
-        )}
-      </TouchableOpacity>
       <Toast />
     </KeyboardAvoidingView>
   );
@@ -142,6 +246,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  tokenContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  tokenInput: {
+    backgroundColor: '#f8bbd0',
+    borderRadius: 10,
+    width: 40,
+    height: 50,
+    fontSize: 24,
+    color: '#4a148c',
+    textAlign: 'center',
   },
 });
 

@@ -58,7 +58,7 @@ const ReviewScreen = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.11:5000/products/${productId}`);
+        const response = await axios.get(`http://192.168.1.5:5000/products/${productId}`);
         setProduct(response.data);
       } catch (error) {
         Alert.alert('Error', 'Failed to load product details.');
@@ -90,7 +90,7 @@ const ReviewScreen = () => {
 
     setSubmitting(true);
     try {
-      await axios.post(`http://192.168.1.11:5000/reviews`, {
+      await axios.post(`http://192.168.1.5:5000/reviews`, {
         product: productId,
         user: userId,
         rating: Number(rating),

@@ -54,7 +54,7 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.11:5000/categories`);
+      const response = await axios.get(`http://192.168.1.5:5000/categories`);
 
       const fetchedCategories = response.data.map((cat) => ({
         label: cat.name,
@@ -77,7 +77,7 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchProducts = async (categoryId) => {
     try {
-      const response = await axios.get(`http://192.168.1.11:5000/products`, {
+      const response = await axios.get(`http://192.168.1.5:5000/products`, {
         params: categoryId !== 'all' ? { categoryId } : {},
       });
 
@@ -94,7 +94,7 @@ const HomeScreen = ({ navigation }) => {
     const fetchWishlist = async () => {
       if (userId && token) {
         try {
-          const response = await axios.get(`http://192.168.1.11:5000/wishlists/${userId}`, {
+          const response = await axios.get(`http://192.168.1.5:5000/wishlists/${userId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setWishlist(response.data.products.map((product) => product._id));
@@ -126,7 +126,7 @@ const HomeScreen = ({ navigation }) => {
     try {
       if (isInWishlist) {
         await axios.delete(
-          `http://192.168.1.11:5000/wishlists/${userId}/${productId}`,
+          `http://192.168.1.5:5000/wishlists/${userId}/${productId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setWishlist(wishlist.filter((id) => id !== productId));
@@ -137,7 +137,7 @@ const HomeScreen = ({ navigation }) => {
         showNotification('Wishlist Updated', 'Item removed from your wishlist.');
       } else {
         await axios.post(
-          `http://192.168.1.11:5000/wishlists/`,
+          `http://192.168.1.5:5000/wishlists/`,
           { user: userId, product: productId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -173,7 +173,7 @@ const HomeScreen = ({ navigation }) => {
 
     try {
       await axios.post(
-        `http://192.168.1.11:5000/carts/add`,
+        `http://192.168.1.5:5000/carts/add`,
         { user: userId, product: productId, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
