@@ -50,7 +50,7 @@ const ForgotPasswordScreen = () => {
     }
     try {
       setLoading(true);
-      await axios.post('http://192.168.1.5:5000/users/request-password-reset', { email });
+      await axios.post('http://192.168.1.2:5000/users/request-password-reset', { email });
       Toast.show({ type: 'success', text1: 'Success', text2: 'Reset code sent to your email.' });
       setStep(2);
     } catch (error) {
@@ -73,7 +73,7 @@ const ForgotPasswordScreen = () => {
     try {
       setLoading(true);
       // Call your backend verify-token endpoint (make sure it exists)
-      await axios.post('http://192.168.1.5:5000/users/verify-token', { token: resetToken });
+      await axios.post('http://192.168.1.2:5000/users/verify-token', { token: resetToken });
       Toast.show({ type: 'success', text1: 'Success', text2: 'Token verified. Please reset your password.' });
       setStep(3);
     } catch (error) {
@@ -99,7 +99,7 @@ const ForgotPasswordScreen = () => {
 
     try {
       setLoading(true);
-      await axios.post('http://192.168.1.5:5000/users/reset-password', {
+      await axios.post('http://192.168.1.2:5000/users/reset-password', {
         token: resetToken,
         newPassword,
       });

@@ -37,7 +37,7 @@ const SignUpScreen = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://192.168.1.5:5000/users/register', {
+      const response = await axios.post('http://192.168.1.2:5000/users/register', {
         name,
         surname,
         email,

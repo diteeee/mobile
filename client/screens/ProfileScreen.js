@@ -34,7 +34,7 @@ const ProfileScreen = () => {
           return;
         }
 
-        const response = await axios.get('http://192.168.1.5:5000/users/me', {
+        const response = await axios.get('http://192.168.1.2:5000/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -59,7 +59,7 @@ const ProfileScreen = () => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axios.put(
-        'http://192.168.1.5:5000/users/me',
+        'http://192.168.1.2:5000/users/me',
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -85,7 +85,7 @@ const ProfileScreen = () => {
     const confirmDeletion = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        await axios.delete('http://192.168.1.5:5000/users/me', {
+        await axios.delete('http://192.168.1.2:5000/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         await AsyncStorage.clear();

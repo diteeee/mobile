@@ -31,7 +31,7 @@ const OrderScreen = () => {
         setUserId(storedUserId);
 
         if (storedUserId && storedToken) {
-          const response = await axios.get(`http://192.168.1.5:5000/carts/${storedUserId}`, {
+          const response = await axios.get(`http://192.168.1.2:5000/carts/${storedUserId}`, {
             headers: { Authorization: `Bearer ${storedToken}` },
           });
           setCart(response.data.products);
@@ -68,7 +68,7 @@ const OrderScreen = () => {
       console.log('Total price calculated:', totalPrice);
 
       const response = await axios.post(
-        'http://192.168.1.5:5000/orders',
+        'http://192.168.1.2:5000/orders',
         {
           user: userId,
           products: cart.map((item) => ({ product: item._id, quantity: item.quantity })),
@@ -88,7 +88,7 @@ const OrderScreen = () => {
       );
 
       await axios.post(
-        'http://192.168.1.5:5000/carts/clear',
+        'http://192.168.1.2:5000/carts/clear',
         { user: userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

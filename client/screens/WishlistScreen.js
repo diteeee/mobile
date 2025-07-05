@@ -53,7 +53,7 @@ const WishlistScreen = () => {
   const fetchWishlist = async (userId, authToken) => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://192.168.1.5:5000/wishlists/${userId}`, {
+      const response = await axios.get(`http://192.168.1.2:5000/wishlists/${userId}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
 
@@ -73,7 +73,7 @@ const WishlistScreen = () => {
   const removeFromWishlist = async (productId) => {
     try {
       await axios.delete(
-        `http://192.168.1.5:5000/wishlists/${userId}/${productId}`,
+        `http://192.168.1.2:5000/wishlists/${userId}/${productId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -97,7 +97,7 @@ const WishlistScreen = () => {
   const handleAddToCart = async (productId) => {
     try {
       await axios.post(
-        `http://192.168.1.5:5000/carts/add`,
+        `http://192.168.1.2:5000/carts/add`,
         { user: userId, product: productId, quantity: 1 },
         {
           headers: { Authorization: `Bearer ${token}` },

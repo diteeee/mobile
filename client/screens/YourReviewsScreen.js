@@ -29,7 +29,7 @@ const YourReviewsScreen = () => {
         }
         setUserId(storedUserId);
 
-        const response = await axios.get(`http://192.168.1.5:5000/reviews/user/${storedUserId}`);
+        const response = await axios.get(`http://192.168.1.2:5000/reviews/user/${storedUserId}`);
         setReviews(response.data);
       } catch (error) {
         console.error('Error fetching user reviews:', error);

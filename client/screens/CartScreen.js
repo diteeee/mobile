@@ -53,7 +53,7 @@ const CartScreen = () => {
   const fetchCart = async (userId, authToken) => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://192.168.1.5:5000/carts/${userId}`, {
+      const response = await axios.get(`http://192.168.1.2:5000/carts/${userId}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
 
@@ -80,7 +80,7 @@ const CartScreen = () => {
 
     try {
       await axios.put(
-        'http://192.168.1.5:5000/carts/update-quantity',
+        'http://192.168.1.2:5000/carts/update-quantity',
         { user: userId, product: productId, quantity: newQuantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -105,7 +105,7 @@ const CartScreen = () => {
   const handleRemoveFromCart = async (productId) => {
     try {
       await axios.post(
-        'http://192.168.1.5:5000/carts/remove',
+        'http://192.168.1.2:5000/carts/remove',
         { user: userId, product: productId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
